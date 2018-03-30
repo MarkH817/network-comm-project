@@ -1,0 +1,21 @@
+{
+  "presets": [
+    [
+      "babel-preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions"
+          ]
+        },
+        "exclude": [
+          "transform-regenerator"
+        ]
+      }
+    ],
+    "babel-preset-react"
+  ],
+  "plugins": [
+    "syntax-dynamic-import"
+  ]
+}

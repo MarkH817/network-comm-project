@@ -1,0 +1,45 @@
+{
+  "name": "server",
+  "description": "p2p chat server",
+  "version": "0.0.0",
+  "author": {
+    "name": "Mark Hernandez",
+    "email": "markedcode@gmail.com"
+  },
+  "license": "MIT",
+  "bin": {},
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "report": "nyc report --reporter=lcov",
+    "start": "node src",
+    "test": "standard && nyc mocha"
+  },
+  "standard": {
+    "globals": [
+      "after",
+      "afterEach",
+      "before",
+      "beforeEach",
+      "describe",
+      "it"
+    ]
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
+    "mocha": "^3.5.3",
+    "nodemon": "^1.17.2",
+    "nyc": "^11.6.0",
+    "standard": "^11.0.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "debug": "^3.1.0",
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "socket.io": "^2.0.4"
+  }
+}
