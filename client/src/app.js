@@ -6,7 +6,7 @@ export const App = () => (
     <Chat log={[{
       timestamp: Date.now(),
       text: 'hello',
-      username: '420'
+      username: 'lionbyte'
     }]} />
   </section>
 )
