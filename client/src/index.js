@@ -1,17 +1,23 @@
 import React from 'react'
 import { render } from 'react-dom'
 import io from 'socket.io-client'
-import { App } from './app'
+import moment from 'moment'
 
-render(<App />, document.getElementById('root'))
+import '../styles/main.less'
 
-const URL =
-  process.env.NODE_ENV === 'production'
-    ? undefined
-    : 'localhost:3000'
+const URL = process.env.NODE_ENV === 'production' ? undefined : 'localhost:3000'
 
 const socket = io(URL)
 
-socket.on('chat-message', console.log)
+import('./app').then(({ App }) => {
+  render(<App socket={socket} />, document.getElementById('root'))
+})
 
-socket.emit('greet', 'hello!')
+socket.on('chat-message', ({ timestamp, message }) => {
+  console.log(`[${timestamp}] ${message}`)
+})
+
+socket.emit('greet', {
+  timestamp: moment.utc().unix(),
+  message: 'hello!'
+})

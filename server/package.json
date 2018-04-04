@@ -17,6 +17,10 @@
     "start": "node src",
     "test": "standard && nyc mocha"
   },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
   "standard": {
     "globals": [
       "after",
@@ -31,7 +35,7 @@
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
     "mocha": "^3.5.3",
-    "nodemon": "^1.17.2",
+    "nodemon": "^1.17.3",
     "nyc": "^11.6.0",
     "standard": "^11.0.1"
   },
@@ -39,7 +43,8 @@
     "body-parser": "^1.18.2",
     "debug": "^3.1.0",
     "express": "^4.16.3",
+    "moment": "^2.22.0",
     "morgan": "^1.9.0",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.1.0"
   }
 }

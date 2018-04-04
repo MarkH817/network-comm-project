@@ -1,0 +1,59 @@
+{
+  "name": "mark-462-project",
+  "version": "0.0.0",
+  "description": "p2p chat project",
+  "main": "n/a",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarkH817/network-comm-project.git"
+  },
+  "author": "Mark Hernandez <markedcode@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MarkH817/network-comm-project/issues"
+  },
+  "homepage": "https://github.com/MarkH817/network-comm-project#readme",
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "standard": {
+    "globals": [
+      "after",
+      "afterEach",
+      "before",
+      "beforeEach",
+      "describe",
+      "it"
+    ],
+    "parser": "babel-eslint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": [
+        "lint-staged"
+      ]
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "standard --fix",
+      "git add"
+    ],
+    "*.{md,less}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.2",
+    "husky": "^0.15.0-rc.13",
+    "lint-staged": "^7.0.3",
+    "prettier": "^1.11.1",
+    "standard": "^11.0.1"
+  }
+}

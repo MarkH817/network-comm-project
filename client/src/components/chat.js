@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 
 export const Chat = ({ log }) => (
   <Fragment>
-    {log.map(({ text, username, timestamp }) => (
+    {log.map(({ message, username, timestamp }) => (
       <section key={timestamp}>
-        {username}: {text}
+        {username || 'guest'}: {message}
       </section>
     ))}
   </Fragment>
@@ -14,8 +14,8 @@ export const Chat = ({ log }) => (
 Chat.propTypes = {
   log: PropTypes.arrayOf(
     PropTypes.shape({
-      text: PropTypes.string.isRequired,
-      username: PropTypes.string.isRequired,
+      message: PropTypes.string.isRequired,
+      username: PropTypes.string,
       timestamp: PropTypes.number.isRequired
     })
   ).isRequired

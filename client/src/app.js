@@ -1,12 +1,28 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Chat } from './components/chat'
 
-export const App = () => (
-  <section>
-    <Chat log={[{
-      timestamp: Date.now(),
-      text: 'hello',
-      username: 'lionbyte'
-    }]} />
-  </section>
-)
+export class App extends Component {
+  constructor (props) {
+    super(props)
+
+    this.state = {
+      log: []
+    }
+  }
+
+  componentDidMount () {
+    this.props.socket.on('chat-message', msg => {
+      this.setState(prevState => ({
+        log: [...prevState.log, msg]
+      }))
+    })
+  }
+
+  render () {
+    return (
+      <section>
+        <Chat log={this.state.log} />
+      </section>
+    )
+  }
+}
