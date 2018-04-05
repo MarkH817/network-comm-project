@@ -9,7 +9,13 @@ app.use(logger('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use(express.static(path.resolve(__dirname, '../../client/dist')))
+if (process.env.NODE_ENV === 'production') {
+  app.get('/', (req, res) => {
+    res.redirect('https://mark-p2p-chat.netlify.com/')
+  })
+} else {
+  app.use(express.static(path.resolve(__dirname, '../client/dist')))
+}
 
 app.use((req, res, next) => {
   const err = new Error('Not found')

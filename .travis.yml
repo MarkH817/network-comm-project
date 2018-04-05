@@ -4,9 +4,9 @@ node_js:
   - "node"
 
 env:
-  - TEST_DIR=client
-  - TEST_DIR=server
+  - TEST_SECTION=client
+  - TEST_SECTION=server
 
-install: cd $TEST_DIR && npm install
+install: echo $TEST_SECTION
 
-script: npm test
+script: npm run travis:$TEST_SECTION
