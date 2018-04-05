@@ -1,0 +1,16 @@
+{
+  "name": "network-comm-project",
+  "scripts": {
+    "postdeploy": "cd server &7 npm install && npm start"
+  },
+  "env": {
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+
+  ]
+}
