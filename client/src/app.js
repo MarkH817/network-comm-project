@@ -1,28 +1,8 @@
-import React, { Component } from 'react'
-import { Chat } from './components/chat'
+import React from 'react'
+import { PeerChat } from './components/peerChat'
 
-export class App extends Component {
-  constructor (props) {
-    super(props)
-
-    this.state = {
-      log: []
-    }
-  }
-
-  componentDidMount () {
-    this.props.socket.on('chat-message', msg => {
-      this.setState(prevState => ({
-        log: [...prevState.log, msg]
-      }))
-    })
-  }
-
-  render () {
-    return (
-      <section>
-        <Chat log={this.state.log} />
-      </section>
-    )
-  }
-}
+export const App = () => (
+  <section>
+    <PeerChat />
+  </section>
+)
