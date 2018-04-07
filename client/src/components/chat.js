@@ -1,14 +1,14 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 export const Chat = ({ log }) => (
-  <Fragment>
+  <section className='chat'>
     {log.map(({ message, username, timestamp }) => (
-      <section key={timestamp}>
-        {username || 'guest'}: {message}
+      <section className='entry' key={timestamp}>
+        {username || 'guest'}: <span className='message'>{message}</span>
       </section>
     ))}
-  </Fragment>
+  </section>
 )
 
 Chat.propTypes = {

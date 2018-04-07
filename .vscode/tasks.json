@@ -4,8 +4,29 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "build:Client",
       "type": "npm",
       "script": "build",
+      "path": "client/",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run in development",
+      "dependsOn": ["dev:Server", "dev:Client"]
+    },
+    {
+      "label": "dev:Server",
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:Client",
+      "type": "npm",
+      "script": "dev",
       "path": "client/",
       "problemMatcher": []
     }

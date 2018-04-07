@@ -1,7 +1,6 @@
 const express = require('express')
 const logger = require('morgan')
 const bodyParser = require('body-parser')
-const path = require('path')
 
 const app = express()
 
@@ -9,13 +8,13 @@ app.use(logger('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-if (process.env.NODE_ENV === 'production') {
-  app.get('/', (req, res) => {
-    res.redirect('https://mark-p2p-chat.netlify.com/')
-  })
-} else {
-  app.use(express.static(path.resolve(__dirname, '../client/dist')))
-}
+app.get('/', (req, res) => {
+  res.redirect(
+    process.env.NODE_ENV === 'production'
+      ? 'https://mark-p2p-chat.netlify.com/'
+      : 'http://localhost:4000/'
+  )
+})
 
 app.use((req, res, next) => {
   const err = new Error('Not found')

@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import Peer from 'simple-peer'
 import moment from 'moment'
 
 import { Chat } from './chat'
@@ -20,11 +19,13 @@ export class PeerChat extends Component {
     this.peer = null
   }
 
-  setPeer (isInitiator) {
+  async setPeer (isInitiator) {
     this.setState({
       isInitiator,
       madeChoice: true
     })
+
+    const { default: Peer } = await import('simple-peer')
 
     const peer = new Peer({
       initiator: isInitiator,
@@ -77,14 +78,14 @@ export class PeerChat extends Component {
   messagePeer (e) {
     e.preventDefault()
 
-    const { input } = this.state
+    const { state: { input }, peer } = this
     const inputText = input.trim()
 
     if (inputText === '') {
       return
     }
 
-    this.peer.send(inputText)
+    peer.send(inputText)
     this.addToChatLog(inputText, 'you')
 
     this.setState({
@@ -100,11 +101,17 @@ export class PeerChat extends Component {
           message: text,
           timestamp: moment()
             .utc()
-            .unix(),
+            .valueOf(),
           username
         }
       ]
     }))
+  }
+
+  componentWillUnmount () {
+    if (this.peer !== null) {
+      this.peer.destroy()
+    }
   }
 
   render () {
@@ -112,6 +119,8 @@ export class PeerChat extends Component {
 
     return (
       <section className='peer'>
+        <h3>PEERC</h3>
+
         <section>
           {!madeChoice && (
             <Fragment>
@@ -155,11 +164,7 @@ export class PeerChat extends Component {
           )}
         </section>
 
-        {isConnected && (
-          <section className='chat-log'>
-            <Chat log={chatLog} />
-          </section>
-        )}
+        {isConnected && <Chat log={chatLog} />}
       </section>
     )
   }

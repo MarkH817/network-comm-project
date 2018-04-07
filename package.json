@@ -56,6 +56,12 @@
       "git add"
     ]
   },
+  "nodemonConfig": {
+    "ignore": [
+      "client/"
+    ],
+    "delay": 2500
+  },
   "devDependencies": {
     "babel-eslint": "^8.2.2",
     "chai": "^4.1.2",

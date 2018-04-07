@@ -1,1 +1,27 @@
 @import '~picnic/picnic.css';
+
+.app {
+  min-height: 100vh;
+
+  .public {
+    background-color: darkblue;
+    color: pink;
+  }
+
+  .peer {
+    background-color: pink;
+    color: darkblue;
+
+    pre {
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.chat {
+  .entry {
+    .message {
+      overflow-wrap: break-word;
+    }
+  }
+}

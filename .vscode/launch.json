@@ -7,8 +7,15 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/server/src/index.js"
+      "name": "Launch Server",
+      "program": "${workspaceFolder}/src/index.js"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome",
+      "url": "http://localhost:4000",
+      "webRoot": "${workspaceFolder}/client"
     }
   ]
 }
