@@ -46,6 +46,14 @@ export class PeerChat extends Component {
       })
     })
 
+    peer.on('error', err => {
+      this.addToChatLog(err.message, '[Error]')
+    })
+
+    peer.on('close', () => {
+      this.addToChatLog('Your peer has left.', '[Info]')
+    })
+
     peer.on('data', data => {
       this.addToChatLog(data.toString(), 'peer')
     })
