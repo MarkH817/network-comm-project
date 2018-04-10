@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
-import io from 'socket.io-client'
+import React, { Component, Fragment } from 'react'
+import moment from 'moment'
+
 import { Chat } from './chat'
 
 const URL =
@@ -12,16 +13,32 @@ export class PublicChat extends Component {
     super(props)
 
     this.state = {
-      log: []
+      connected: false,
+      input: '',
+      isSending: false,
+      log: [],
+      nickname: '',
+      selfID: ''
     }
 
     this.socket = null
   }
 
-  componentDidMount () {
+  async componentDidMount () {
+    const { default: io } = await import('socket.io-client')
+
     const socket = io(URL)
 
-    socket.on('')
+    socket.on('connect', () => {
+      this.setState({
+        selfID: socket.id,
+        connected: true
+      })
+    })
+
+    socket.on('message', ({ username, message }) => {
+      console.log(username, ':', message)
+    })
 
     this.socket = socket
   }
@@ -34,20 +51,95 @@ export class PublicChat extends Component {
     }
   }
 
-  addMessage (message) {
+  setNickname (e) {
+    e.preventDefault()
+
+    const { input } = this.state
+
+    this.setState({
+      input: '',
+      nickname: input
+    })
+  }
+
+  sendMessage (e) {
+    e.preventDefault()
+
+    const { socket, state: { input, nickname } } = this
+
+    const inputText = input.trim()
+
+    if (inputText === '') {
+      return
+    }
+
+    this.setState({ isSending: true }, () => {
+      socket.emit(
+        'message',
+        {
+          username: nickname,
+          message: inputText
+        },
+        () => {
+          this.addToLog(inputText, `${nickname} (You)`)
+          this.setState({ input: '', isSending: false })
+        }
+      )
+    })
+  }
+
+  addToLog (text, username) {
     this.setState(prevState => ({
-      log: [...prevState.log, message]
+      log: [
+        ...prevState.log,
+        {
+          message: text,
+          timestamp: moment()
+            .utc()
+            .valueOf(),
+          username
+        }
+      ]
     }))
   }
 
   render () {
-    const { log } = this.state
+    const { connected, input, isSending, log, nickname, selfID } = this.state
 
     return (
       <section className='public'>
-        <h3>PUBC</h3>
+        <h3>Public Chat</h3>
 
-        <Chat log={log} />
+        {connected && (
+          <Fragment>
+            <h4>Hello, {nickname || selfID}</h4>
+            <Chat log={log} />
+          </Fragment>
+        )}
+
+        {connected && (
+          <form
+            onSubmit={e => {
+              if (!nickname) {
+                this.setNickname(e)
+              } else {
+                this.sendMessage(e)
+              }
+            }}
+          >
+            {isSending && 'Sending...'}
+            <input
+              type='text'
+              value={input}
+              onChange={e =>
+                this.setState({
+                  input: e.target.value
+                })
+              }
+              placeholder={nickname ? 'Send a message' : 'Choose a nickname'}
+            />
+          </form>
+        )}
       </section>
     )
   }
