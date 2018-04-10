@@ -6,10 +6,9 @@ const attachIO = httpserver => {
   io.on('connection', socket => {
     console.log(`Connected:    ${socket.id}`)
 
-    socket.on('message', (message, cb) => {
-      console.log(`Message: ${JSON.stringify(message)}`)
+    socket.on('message', (message, ack) => {
       socket.broadcast.emit('message', message)
-      cb()
+      ack()
     })
 
     socket.on('disconnect', () => {

@@ -36,8 +36,10 @@ export class PublicChat extends Component {
       })
     })
 
+    socket.on('error', console.error)
+
     socket.on('message', ({ username, message }) => {
-      console.log(username, ':', message)
+      this.addToLog(message, username)
     })
 
     this.socket = socket
