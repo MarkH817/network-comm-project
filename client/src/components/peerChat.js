@@ -13,7 +13,7 @@ export class PeerChat extends Component {
       isConnected: false,
       isInitiator: false,
       madeChoice: false,
-      selfId: {}
+      selfId: null
     }
 
     this.peer = null
@@ -127,7 +127,7 @@ export class PeerChat extends Component {
 
     return (
       <section className='peer'>
-        <h3>PEERC</h3>
+        <h3>Peer Chat</h3>
 
         <section>
           {!madeChoice && (
@@ -145,10 +145,16 @@ export class PeerChat extends Component {
             !isConnected && (
               <Fragment>
                 <p>Your Contact ID</p>
-                <pre>{JSON.stringify(selfId, null, 2)}</pre>
+                <pre>
+                  {selfId !== null ? JSON.stringify(selfId, null, 2) : '{...}'}
+                </pre>
               </Fragment>
             )}
+
+          {madeChoice && isConnected && <h4>Play nice.</h4>}
         </section>
+
+        {isConnected && <Chat log={chatLog} />}
 
         <section>
           {madeChoice && (
@@ -171,8 +177,6 @@ export class PeerChat extends Component {
             </Fragment>
           )}
         </section>
-
-        {isConnected && <Chat log={chatLog} />}
       </section>
     )
   }

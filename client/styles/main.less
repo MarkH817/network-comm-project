@@ -3,6 +3,16 @@
 .app {
   min-height: 100vh;
 
+  .public,
+  .peer {
+    padding: 0 2em 1em 2em;
+
+    & .chat {
+      height: ~'calc(100vh - 9em)';
+      overflow-y: scroll;
+    }
+  }
+
   .public {
     background-color: darkblue;
     color: pink;
@@ -17,6 +27,7 @@
     color: darkblue;
 
     pre {
+      font-size: 0.75em;
       white-space: pre-wrap;
     }
   }

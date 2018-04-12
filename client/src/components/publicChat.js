@@ -129,7 +129,6 @@ export class PublicChat extends Component {
               }
             }}
           >
-            {isSending && 'Sending...'}
             <input
               type='text'
               value={input}
@@ -139,9 +138,12 @@ export class PublicChat extends Component {
                 })
               }
               placeholder={nickname ? 'Send a message' : 'Choose a nickname'}
+              disabled={isSending}
             />
           </form>
         )}
+
+        {!connected && <h4>Connecting to server...</h4>}
       </section>
     )
   }
