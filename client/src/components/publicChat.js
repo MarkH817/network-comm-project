@@ -25,6 +25,7 @@ export class PublicChat extends Component {
   }
 
   async componentDidMount () {
+    // const { store } = this.props
     const { default: io } = await import('socket.io-client')
 
     const socket = io(URL)
@@ -40,6 +41,18 @@ export class PublicChat extends Component {
 
     socket.on('message', ({ username, message }) => {
       this.addToLog(message, username)
+    })
+
+    socket.on('roster-current', (...stuff) =>
+      console.log('current roster:', ...stuff)
+    )
+
+    socket.on('roster-add', id => {
+      // store.dispatch(addUser(id, 'guest'))
+    })
+
+    socket.on('roster-remove', id => {
+      // store.dispatch(removeUser(id))
     })
 
     this.socket = socket
