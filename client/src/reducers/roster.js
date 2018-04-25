@@ -1,6 +1,6 @@
 /**
  * @typedef {Object} Roster
- * @property {Array<User>} activeUsers
+ * @property {Array<Object>} activeUsers
  * @property {String} selfId
  */
 
@@ -18,16 +18,20 @@ const DEFAULT_STATE = {
 export const roster = (state = DEFAULT_STATE, action) => {
   switch (action.type) {
     case 'ROSTER_ID_SELF':
-      return Object.assign({}, state, { selfID: action.id })
+      return Object.assign({}, state, { selfId: action.id })
 
     case 'ROSTER_INIT':
-      return Object.assign({}, state, { activeUsers: action.userList })
+      return Object.assign({}, state, {
+        activeUsers: action.userList.map(user =>
+          Object.assign({}, user, { isActive: true })
+        )
+      })
 
     case 'ROSTER_ADD_USER':
       return Object.assign({}, state, {
         activeUsers: [
           ...state.activeUsers,
-          { id: action.id, username: 'guest' }
+          { id: action.id, username: 'guest', isActive: true }
         ]
       })
 
@@ -37,13 +41,18 @@ export const roster = (state = DEFAULT_STATE, action) => {
           user =>
             action.id !== user.id
               ? user
-              : { id: user.id, username: action.username }
+              : Object.assign({}, user, { username: action.username })
         )
       })
 
     case 'ROSTER_REMOVE_USER':
       return Object.assign({}, state, {
-        activeUsers: state.activeUsers.filter(({ id }) => id !== action.id)
+        activeUsers: state.activeUsers.map(
+          user =>
+            action.id !== user.id
+              ? user
+              : Object.assign({}, user, { isActive: false })
+        )
       })
 
     default:

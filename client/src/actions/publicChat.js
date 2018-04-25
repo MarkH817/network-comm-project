@@ -33,6 +33,14 @@ export const addError = (id, message) => ({
   message
 })
 
+export const connect = () => ({
+  type: 'PUBLIC_CHAT_CONNECT'
+})
+
+export const disconnect = () => ({
+  type: 'PUBLIC_CHAT_DISCONNECT'
+})
+
 /**
  * Enable chat functionality
  */

@@ -9,7 +9,7 @@ export const idSelf = socketID => ({
 
 /**
  * Initialize roster w/ current active users
- * @param {Array<User>} userList
+ * @param {Array<Object>} userList
  */
 export const initializeRoster = userList => ({
   type: 'ROSTER_INIT',
