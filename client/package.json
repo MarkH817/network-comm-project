@@ -16,21 +16,14 @@
     "lint": "standard --parser babel-eslint",
     "lint:fix": "standard --parser babel-eslint --fix",
     "report": "nyc report --reporter=lcov",
-    "test": "standard src && nyc mocha"
+    "test": "standard src && cross-env NODE_ENV=test nyc mocha --require babel-register"
   },
   "prettier": {
     "semi": false,
     "singleQuote": true
   },
   "standard": {
-    "globals": [
-      "after",
-      "afterEach",
-      "before",
-      "beforeEach",
-      "describe",
-      "it"
-    ],
+    "globals": ["after", "afterEach", "before", "beforeEach", "describe", "it"],
     "parser": "babel-eslint"
   },
   "devDependencies": {
@@ -41,9 +34,11 @@
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
+    "babel-register": "^6.26.0",
     "chai": "^4.1.2",
     "clean-webpack-plugin": "^0.1.19",
     "coveralls": "^3.0.0",
+    "cross-env": "^5.1.4",
     "css-loader": "^0.28.11",
     "cssnano": "^3.10.0",
     "del-cli": "^1.1.0",
@@ -52,24 +47,24 @@
     "less-loader": "^4.1.0",
     "mini-css-extract-plugin": "^0.4.0",
     "mocha": "^3.5.3",
-    "nyc": "^11.6.0",
-    "postcss-loader": "^2.1.3",
+    "nyc": "^11.7.1",
+    "postcss-loader": "^2.1.4",
     "standard": "^11.0.1",
     "style-loader": "^0.18.2",
-    "webpack": "^4.4.1",
-    "webpack-cli": "^2.0.13",
-    "webpack-dev-server": "^3.1.1",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.15",
+    "webpack-dev-server": "^3.1.3",
     "webpack-merge": "^4.1.2"
   },
   "dependencies": {
-    "moment": "^2.22.0",
+    "moment": "^2.22.1",
     "picnic": "^6.5.0",
     "prop-types": "^15.6.1",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
-    "simple-peer": "^9.0.0",
+    "simple-peer": "^9.1.1",
     "socket.io-client": "^2.1.0"
   }
 }
