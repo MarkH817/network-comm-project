@@ -7,7 +7,7 @@ export class ChatEntry extends PureComponent {
 
     return (
       <section className='entry'>
-        {username}: <span className='message'>{message}</span>
+        <b>{username}</b>: <span className='message'>{message}</span>
       </section>
     )
   }

@@ -13,23 +13,19 @@ export const addMessage = (socketId, timestamp, message) => ({
 
 /**
  * Add verbose info messages
- * @param {String} id
  * @param {String} message
  */
-export const addInfo = (id, message) => ({
+export const addInfo = message => ({
   type: 'PUBLIC_CHAT_ADD_INFO',
-  id,
   message
 })
 
 /**
  * Add error messages
- * @param {String} id
  * @param {String} message
  */
-export const addError = (id, message) => ({
+export const addError = message => ({
   type: 'PUBLIC_CHAT_ADD_ERROR',
-  id,
   message
 })
 

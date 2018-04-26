@@ -41,7 +41,7 @@ export const peerChat = (state = DEFAULT_STATE, action) => {
       return Object.assign({}, state, {
         debugLog: [
           ...state.debugLog,
-          createDebugMessage(action.id, action.message, 'info')
+          createDebugMessage(action.message, 'info')
         ]
       })
 
@@ -49,7 +49,7 @@ export const peerChat = (state = DEFAULT_STATE, action) => {
       return Object.assign({}, state, {
         debugLog: [
           ...state.debugLog,
-          createDebugMessage(action.id, action.message, 'error')
+          createDebugMessage(action.message, 'error')
         ]
       })
 

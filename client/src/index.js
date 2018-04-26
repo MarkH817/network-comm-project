@@ -6,7 +6,6 @@ import '../styles/main.less'
 import { PublicChat, Roster } from './components'
 import { getStore } from './store'
 import { connectSocketClient } from './utils'
-import { addMessage, disableChat, enableChat } from './actions/publicChat'
 
 const store = getStore()
 const socket = connectSocketClient(store)
@@ -27,52 +26,10 @@ const guestNames = [
   'Nathan'
 ]
 
-const guestMessages = [
-  'Hi!',
-  'Hey there!',
-  'Take it sleazy',
-  'Is that Matt Doyle',
-  'Cursed',
-  'Do not.',
-  ':3c',
-  'Oh, worm?',
-  'Bet',
-  'H',
-  'Wh-',
-  'What?',
-  `I don't know what you mean.`,
-  '>:3'
-]
-
 const randomEntry = list => list[Math.floor(Math.random() * list.length)]
 
 socket.on('connect', () => {
   socket.emit('username', randomEntry(guestNames))
-
-  const { id } = socket
-
-  setInterval(() => {
-    store.dispatch(disableChat())
-    const message = randomEntry(guestMessages)
-
-    import('moment')
-      .then(({ default: { utc } }) => {
-        const timestamp = utc().valueOf()
-
-        socket.emit(
-          'message',
-          {
-            message,
-            timestamp
-          },
-          () => {
-            store.dispatch(addMessage(id, timestamp, message))
-            store.dispatch(enableChat())
-          }
-        )
-      })
-      .catch(console.error)
-  }, 10000)
 })
 // End of Demo Code
 
@@ -82,7 +39,7 @@ render(
       <section className='public'>
         <h3>Public Chat</h3>
 
-        <PublicChat />
+        <PublicChat socket={socket} />
       </section>
 
       <section className='roster'>
@@ -91,9 +48,9 @@ render(
         <Roster />
       </section>
 
-      <section className='peer'>
+      {/* <section className='peer'>
         <h3>Peer Chat</h3>
-      </section>
+      </section> */}
     </section>
   </Provider>,
   document.getElementById('root')

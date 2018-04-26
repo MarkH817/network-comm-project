@@ -35,13 +35,11 @@ export const messageComparator = (a, b) => a.timestamp - b.timestamp
  */
 
 /**
- * @param {String} id
  * @param {String} message
  * @param {String} type
  * @returns {Debug}
  */
-export const createDebugMessage = (id, message, type) => ({
-  id,
+export const createDebugMessage = (message, type) => ({
   message,
   type
 })
