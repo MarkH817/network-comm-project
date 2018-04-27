@@ -9,5 +9,16 @@ module.exports = merge(common, {
   plugins: [new CleanWebpackPlugin(['dist'])],
   performance: {
     maxEntrypointSize: 400000
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          chunks: 'all',
+          name: 'vendors',
+          test: /[\\/]node_modules[\\/]\bbabel-polyfill|\bredux|\breact-redux|\bregenerator-runtime|\bstyle-loader/
+        }
+      }
+    }
   }
 })
