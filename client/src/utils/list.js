@@ -13,3 +13,11 @@
  */
 export const sortedInsertion = (list, item, comparator) =>
   [...list, item].sort(comparator)
+
+/**
+ * Returns a random element in the array
+ * @template T
+ * @param {Array<T>} list
+ * @returns T
+ */
+export const randomEntry = list => list[Math.floor(Math.random() * list.length)]

@@ -1,4 +1,4 @@
-export { sortedInsertion } from './list'
+export { randomEntry, sortedInsertion } from './list'
 export { createDebugMessage, createMessage, messageComparator } from './message'
 export { getPeer } from './peer'
-export { getSocket, connectSocketClient } from './socket'
+export { getSocket } from './socket'

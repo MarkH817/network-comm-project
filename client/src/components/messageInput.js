@@ -64,3 +64,5 @@ MessageInput.propTypes = {
 MessageInput.defaultProps = {
   reportError: err => console.error(err)
 }
+
+export default MessageInput

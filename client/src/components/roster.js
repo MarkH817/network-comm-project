@@ -24,3 +24,5 @@ const mapStateToProps = ({ roster: { selfId, activeUsers } }) => ({
 })
 
 export const Roster = connect(mapStateToProps)(RosterPresentation)
+
+export default Roster

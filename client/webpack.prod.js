@@ -6,5 +6,8 @@ const common = require('./webpack.common')
 module.exports = merge(common, {
   devtool: 'source-map',
   mode: 'production',
-  plugins: [new CleanWebpackPlugin(['dist'])]
+  plugins: [new CleanWebpackPlugin(['dist'])],
+  performance: {
+    maxEntrypointSize: 400000
+  }
 })

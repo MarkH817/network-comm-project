@@ -1,37 +1,24 @@
+import 'babel-polyfill'
 import React from 'react'
 import { render } from 'react-dom'
+import Loadable from 'react-loadable'
 import { Provider } from 'react-redux'
 
 import '../styles/main.less'
-import { PublicChat, Roster } from './components'
+import { Loading } from './components/loading'
 import { getStore } from './store'
-import { connectSocketClient } from './utils'
 
 const store = getStore()
-const socket = connectSocketClient(store)
 
-// Demo code
-const guestNames = [
-  'Mark',
-  'Christo',
-  'Sam',
-  'Jill',
-  'Justin',
-  'Cristy',
-  'Derek',
-  'Kat',
-  'Matt',
-  'Dorian',
-  'Reinhardt',
-  'Nathan'
-]
-
-const randomEntry = list => list[Math.floor(Math.random() * list.length)]
-
-socket.on('connect', () => {
-  socket.emit('username', randomEntry(guestNames))
+const Roster = Loadable({
+  loader: () => import('./components/roster'),
+  loading: Loading
 })
-// End of Demo Code
+
+const PublicChat = Loadable({
+  loader: () => import('./components/publicChat'),
+  loading: Loading
+})
 
 render(
   <Provider store={store}>
@@ -39,7 +26,7 @@ render(
       <section className='public'>
         <h3>Public Chat</h3>
 
-        <PublicChat socket={socket} />
+        <PublicChat />
       </section>
 
       <section className='roster'>
@@ -47,10 +34,6 @@ render(
 
         <Roster />
       </section>
-
-      {/* <section className='peer'>
-        <h3>Peer Chat</h3>
-      </section> */}
     </section>
   </Provider>,
   document.getElementById('root')

@@ -29,7 +29,6 @@ export const messageComparator = (a, b) => a.timestamp - b.timestamp
 
 /**
  * @typedef {Object} Debug
- * @property {String} id
  * @property {String} message
  * @property {String} type
  */

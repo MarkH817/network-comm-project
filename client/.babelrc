@@ -4,10 +4,11 @@
       "babel-preset-env",
       {
         "modules": false,
+        "loose": true,
+        "useBuiltins": true,
         "targets": {
-          "browsers": ["ie 11", "last 2 versions"]
-        },
-        "exclude": ["transform-regenerator"]
+          "browsers": ["defaults"]
+        }
       }
     ],
     "babel-preset-react"
@@ -22,7 +23,7 @@
           {
             "modules": "commonjs",
             "targets": {
-              "browsers": ["last 2 versions"]
+              "node": "current"
             },
             "exclude": ["transform-regenerator"]
           }
