@@ -3,19 +3,34 @@
     [
       "babel-preset-env",
       {
+        "modules": false,
+        "loose": true,
+        "useBuiltins": true,
         "targets": {
-          "browsers": [
-            "last 2 versions"
-          ]
-        },
-        "exclude": [
-          "transform-regenerator"
-        ]
+          "browsers": ["defaults"]
+        }
       }
     ],
     "babel-preset-react"
   ],
-  "plugins": [
-    "syntax-dynamic-import"
-  ]
+  "plugins": ["syntax-dynamic-import"],
+
+  "env": {
+    "test": {
+      "presets": [
+        [
+          "babel-preset-env",
+          {
+            "modules": "commonjs",
+            "targets": {
+              "node": "current"
+            },
+            "exclude": ["transform-regenerator"]
+          }
+        ],
+        "babel-preset-react"
+      ],
+      "plugins": ["syntax-dynamic-import"]
+    }
+  }
 }

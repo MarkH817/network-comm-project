@@ -1,150 +1,184 @@
-import React, { Component, Fragment } from 'react'
-import moment from 'moment'
+import React, { Fragment, PureComponent } from 'react'
+import Loadable from 'react-loadable'
+import { connect } from 'react-redux'
 
-import { Chat } from './chat'
+import {
+  addMessage,
+  addError,
+  connect as connectChat,
+  disconnect as disconnectChat,
+  disableChat,
+  enableChat
+} from '../actions/publicChat'
+import {
+  addUser,
+  idSelf,
+  initializeRoster,
+  removeUser,
+  updateUserName
+} from '../actions/roster'
+import { Loading } from './loading'
+import { getSocket, randomEntry } from '../utils'
 
-const URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://mark-p2p-chat.herokuapp.com/'
-    : 'http://localhost:3000'
+const Chat = Loadable({
+  loader: () => import('./chat'),
+  loading: Loading
+})
 
-export class PublicChat extends Component {
+const MessageInput = Loadable({
+  loader: () => import('./messageInput'),
+  loading: Loading
+})
+
+export class PublicChatPresentation extends PureComponent {
   constructor (props) {
     super(props)
 
-    this.state = {
-      connected: false,
-      input: '',
-      isSending: false,
-      log: [],
-      nickname: '',
-      selfID: ''
-    }
+    this.emitMessage = this.emitMessage.bind(this)
 
     this.socket = null
   }
 
-  async componentDidMount () {
-    const { default: io } = await import('socket.io-client')
-
-    const socket = io(URL)
-
-    socket.on('connect', () => {
-      this.setState({
-        selfID: socket.id,
-        connected: true
-      })
-    })
-
-    socket.on('error', console.error)
-
-    socket.on('message', ({ username, message }) => {
-      this.addToLog(message, username)
-    })
-
-    this.socket = socket
-  }
-
-  componentWillUnmount () {
-    const { socket } = this
-
-    if (socket !== null) {
-      socket.close()
-    }
-  }
-
-  setNickname (e) {
-    e.preventDefault()
-
-    const { input } = this.state
-
-    this.setState({
-      input: '',
-      nickname: input
-    })
-  }
-
-  sendMessage (e) {
-    e.preventDefault()
-
-    const { socket, state: { input, nickname } } = this
-
-    const inputText = input.trim()
-
-    if (inputText === '') {
+  componentDidMount () {
+    if (typeof window === 'undefined') {
       return
     }
 
-    this.setState({ isSending: true }, () => {
+    const {
+      addError,
+      addMessage,
+      addUser,
+      connectChat,
+      enableChat,
+      initRoster,
+      removeUser,
+      setId,
+      updateUserName
+    } = this.props
+
+    // Connect socket events to Redux store
+    getSocket()
+      .then(socket => {
+        socket.on('connect', () => {
+          setId(socket.id)
+          connectChat()
+          enableChat()
+
+          // Demo code - start
+          socket.emit(
+            'username',
+            randomEntry([
+              'Mark',
+              'Christo',
+              'Sam',
+              'Jill',
+              'Justin',
+              'Cristy',
+              'Derek',
+              'Kat',
+              'Matt',
+              'Dorian',
+              'Reinhardt',
+              'Nathan'
+            ])
+          )
+          // Demo code - end
+        })
+
+        socket.on('roster-current', initRoster)
+
+        socket.on('roster-add', addUser)
+
+        socket.on('roster-remove', removeUser)
+
+        socket.on('username', ({ id, username }) => {
+          updateUserName(id, username)
+        })
+
+        socket.on('message', ({ id, timestamp, message }) => {
+          addMessage(id, timestamp, message)
+        })
+
+        socket.on('error', addError)
+
+        this.socket = socket
+      })
+      .catch(addError)
+  }
+
+  /**
+   * Sends the message to the Socket.io server
+   * @param {String} message
+   */
+  emitMessage (message) {
+    const {
+      props: { addMessage, disableChat, enableChat },
+      socket
+    } = this
+
+    return new Promise((resolve, reject) => {
+      const timestamp = Date.now().valueOf()
+
+      disableChat()
+
       socket.emit(
         'message',
         {
-          username: nickname,
-          message: inputText
+          message,
+          timestamp
         },
         () => {
-          this.addToLog(inputText, `${nickname} (You)`)
-          this.setState({ input: '', isSending: false })
+          addMessage(socket.id, timestamp, message)
+          enableChat()
+          resolve()
         }
       )
     })
   }
 
-  addToLog (text, username) {
-    this.setState(prevState => ({
-      log: [
-        ...prevState.log,
-        {
-          message: text,
-          timestamp: moment()
-            .utc()
-            .valueOf(),
-          username
-        }
-      ]
-    }))
-  }
-
   render () {
-    const { connected, input, isSending, log, nickname, selfID } = this.state
+    const { addError, enabled, log, users } = this.props
 
     return (
-      <section className='public'>
-        <h3>Public Chat</h3>
+      <Fragment>
+        <Chat log={log} users={users} />
 
-        {connected && (
-          <Fragment>
-            <h4>Hello, {nickname || selfID}</h4>
-            <Chat log={log} />
-          </Fragment>
-        )}
-
-        {connected && (
-          <form
-            onSubmit={e => {
-              if (!nickname) {
-                this.setNickname(e)
-              } else {
-                this.sendMessage(e)
-              }
-            }}
-          >
-            <input
-              type='text'
-              value={input}
-              onChange={e =>
-                this.setState({
-                  input: e.target.value
-                })
-              }
-              placeholder={nickname ? 'Send a message' : 'Choose a nickname'}
-              disabled={isSending}
-            />
-          </form>
-        )}
-
-        {!connected && <h4>Connecting to server...</h4>}
-      </section>
+        <MessageInput
+          enabled={enabled}
+          reportError={addError}
+          submit={this.emitMessage}
+        />
+      </Fragment>
     )
   }
 }
+
+const mapStateToProps = ({
+  roster: { activeUsers },
+  publicChat: { enabled, log }
+}) => ({
+  enabled,
+  log,
+  users: activeUsers
+})
+
+const mapDispatchToProps = dispatch => ({
+  addError: err => dispatch(addError(err)),
+  addMessage: (id, timestamp, message) =>
+    dispatch(addMessage(id, timestamp, message)),
+  addUser: id => dispatch(addUser(id)),
+  connectChat: () => dispatch(connectChat()),
+  disconnectChat: () => dispatch(disconnectChat()),
+  disableChat: () => dispatch(disableChat()),
+  enableChat: () => dispatch(enableChat()),
+  initRoster: users => dispatch(initializeRoster(users)),
+  removeUser: id => dispatch(removeUser(id)),
+  setId: id => dispatch(idSelf(id)),
+  updateUserName: (id, username) => dispatch(updateUserName(id, username))
+})
+
+export const PublicChat = connect(mapStateToProps, mapDispatchToProps)(
+  PublicChatPresentation
+)
+
+export default PublicChat
