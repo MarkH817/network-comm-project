@@ -1,3 +1,4 @@
+// istanbul ignore next
 /**
  * Get instance of simple-peer Peer
  * @param {Boolean} isInitiator Indicates that this peer is initiating the connection

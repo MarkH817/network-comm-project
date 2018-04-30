@@ -1,9 +1,8 @@
-import React, { Component, Fragment } from 'react'
-import moment from 'moment'
+import React, { Fragment, PureComponent } from 'react'
 
 import { Chat } from './chat'
 
-export class PeerChat extends Component {
+export class PeerChat extends PureComponent {
   constructor (props) {
     super(props)
 
@@ -86,7 +85,10 @@ export class PeerChat extends Component {
   messagePeer (e) {
     e.preventDefault()
 
-    const { state: { input }, peer } = this
+    const {
+      state: { input },
+      peer
+    } = this
     const inputText = input.trim()
 
     if (inputText === '') {
@@ -107,9 +109,7 @@ export class PeerChat extends Component {
         ...prevState.chatLog,
         {
           message: text,
-          timestamp: moment()
-            .utc()
-            .valueOf(),
+          timestamp: Date.now().valueOf(),
           username
         }
       ]

@@ -39,11 +39,11 @@ export class MessageInput extends PureComponent {
   render () {
     const {
       state: { text },
-      props: { enabled }
+      props: { className, enabled }
     } = this
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form className={className} onSubmit={this.handleSubmit}>
         <input
           type='text'
           value={text}

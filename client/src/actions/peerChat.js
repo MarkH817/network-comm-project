@@ -31,12 +31,10 @@ export const addError = message => ({
 
 /**
  * Connect to peer
- * @param {String} socketId
  * @param {String} peerId
  */
-export const connectPeer = (socketId, peerId) => ({
+export const connectPeer = peerId => ({
   type: 'PEER_CHAT_CONNECT',
-  id: socketId,
   peerId
 })
 

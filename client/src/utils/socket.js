@@ -1,3 +1,4 @@
+// istanbul ignore next
 /**
  * Get instance of socket.io-client io
  * @returns {PromiseLike<SocketIO>} Promise that resolves to a client socket instance

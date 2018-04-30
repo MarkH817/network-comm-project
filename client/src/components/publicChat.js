@@ -1,4 +1,4 @@
-import React, { Fragment, PureComponent } from 'react'
+import React, { PureComponent } from 'react'
 import Loadable from 'react-loadable'
 import { connect } from 'react-redux'
 
@@ -14,7 +14,7 @@ import {
   addUser,
   idSelf,
   initializeRoster,
-  removeUser,
+  inactiveUser,
   updateUserName
 } from '../actions/roster'
 import { Loading } from './loading'
@@ -49,9 +49,11 @@ export class PublicChatPresentation extends PureComponent {
       addMessage,
       addUser,
       connectChat,
+      disconnectChat,
       enableChat,
+      disableChat,
       initRoster,
-      removeUser,
+      inactiveUser,
       setId,
       updateUserName
     } = this.props
@@ -85,11 +87,16 @@ export class PublicChatPresentation extends PureComponent {
           // Demo code - end
         })
 
+        socket.on('disconnect', () => {
+          disableChat()
+          disconnectChat()
+        })
+
         socket.on('roster-current', initRoster)
 
         socket.on('roster-add', addUser)
 
-        socket.on('roster-remove', removeUser)
+        socket.on('roster-remove', inactiveUser)
 
         socket.on('username', ({ id, username }) => {
           updateUserName(id, username)
@@ -137,29 +144,35 @@ export class PublicChatPresentation extends PureComponent {
   }
 
   render () {
-    const { addError, enabled, log, users } = this.props
+    const { className, addError, connected, enabled, log, users } = this.props
 
     return (
-      <Fragment>
-        <Chat log={log} users={users} />
+      <section className={className}>
+        <h3>
+          Public Chat
+          {!connected && <span className='fadeInOut'> (loading)</span>}
+        </h3>
+
+        <Chat className='chat' log={log} users={users} />
 
         <MessageInput
           enabled={enabled}
           reportError={addError}
           submit={this.emitMessage}
         />
-      </Fragment>
+      </section>
     )
   }
 }
 
 const mapStateToProps = ({
-  roster: { activeUsers },
-  publicChat: { enabled, log }
+  roster: { users },
+  publicChat: { connected, enabled, log }
 }) => ({
+  connected,
   enabled,
   log,
-  users: activeUsers
+  users
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -172,7 +185,7 @@ const mapDispatchToProps = dispatch => ({
   disableChat: () => dispatch(disableChat()),
   enableChat: () => dispatch(enableChat()),
   initRoster: users => dispatch(initializeRoster(users)),
-  removeUser: id => dispatch(removeUser(id)),
+  inactiveUser: id => dispatch(inactiveUser(id)),
   setId: id => dispatch(idSelf(id)),
   updateUserName: (id, username) => dispatch(updateUserName(id, username))
 })

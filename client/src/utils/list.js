@@ -14,6 +14,7 @@
 export const sortedInsertion = (list, item, comparator) =>
   [...list, item].sort(comparator)
 
+// istanbul ignore next
 /**
  * Returns a random element in the array
  * @template T

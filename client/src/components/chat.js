@@ -3,11 +3,16 @@ import PropTypes from 'prop-types'
 
 export class ChatEntry extends PureComponent {
   render () {
-    const { username, message } = this.props
+    const { username, hash, message } = this.props
 
     return (
       <section className='entry'>
-        <b>{username}</b>: <span className='message'>{message}</span>
+        <span className='user'>
+          <span className='username'>{username}</span>
+          <span className='hash'>#{hash.toString().padStart(4, '0')}</span>
+        </span>
+        :
+        <span className='message'>{message}</span>
       </section>
     )
   }
@@ -15,6 +20,7 @@ export class ChatEntry extends PureComponent {
 
 ChatEntry.propTypes = {
   username: PropTypes.string.isRequired,
+  hash: PropTypes.number.isRequired,
   message: PropTypes.string.isRequired
 }
 
@@ -28,18 +34,22 @@ export class Chat extends PureComponent {
   }
 
   render () {
-    const { log, users } = this.props
+    const { className, log, users } = this.props
 
     return (
-      <section className='chat' ref={chatLog => (this.chatLog = chatLog)}>
+      <section
+        className={className || 'chat'}
+        ref={chatLog => (this.chatLog = chatLog)}
+      >
         {log.map(({ message, id, timestamp }) => {
-          const { username } = users.find(user => id === user.id)
+          const { username, hash } = users.find(user => id === user.id)
 
           return (
             <ChatEntry
               key={`${id}-${timestamp}`}
               message={message}
               username={username}
+              hash={hash}
             />
           )
         })}
@@ -61,6 +71,7 @@ Chat.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       username: PropTypes.string.isRequired,
+      hash: PropTypes.number.isRequired,
       isActive: PropTypes.bool.isRequired
     })
   ).isRequired

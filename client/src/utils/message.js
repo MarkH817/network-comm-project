@@ -27,6 +27,7 @@ export const createMessage = (id, timestamp, message) => ({
  */
 export const messageComparator = (a, b) => a.timestamp - b.timestamp
 
+// istanbul ignore next
 /**
  * @typedef {Object} Debug
  * @property {String} message

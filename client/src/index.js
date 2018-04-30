@@ -22,18 +22,10 @@ const PublicChat = Loadable({
 
 render(
   <Provider store={store}>
-    <section className='app flex one two-800'>
-      <section className='public'>
-        <h3>Public Chat</h3>
+    <section className='app flex one two-1000'>
+      <PublicChat className='public' />
 
-        <PublicChat />
-      </section>
-
-      <section className='roster'>
-        <h3>Roster</h3>
-
-        <Roster />
-      </section>
+      <Roster className='roster' />
     </section>
   </Provider>,
   document.getElementById('root')

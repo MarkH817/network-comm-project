@@ -9,6 +9,7 @@ import {
  * @typedef {Object} PeerChat
  * @property {Boolean} connected
  * @property {Boolean} enabled
+ * @property {String} peerId
  * @property {Array<Message>} log
  * @property {Array<Debug>} debugLog
  */
@@ -17,6 +18,7 @@ import {
 const DEFAULT_STATE = {
   connected: false,
   enabled: false,
+  peerId: '',
   log: [],
   debugLog: []
 }
@@ -55,7 +57,8 @@ export const peerChat = (state = DEFAULT_STATE, action) => {
 
     case 'PEER_CHAT_CONNECT':
       return Object.assign({}, state, {
-        connected: true
+        connected: true,
+        peerId: action.peerId
       })
 
     case 'PEER_CHAT_DISCONNECT':

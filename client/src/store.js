@@ -7,7 +7,12 @@ import { app } from './reducers'
  * @returns {Store} A Redux store that holds the application state
  */
 export const getStore = () => {
-  if (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__) {
+  // istanbul ignore next
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    typeof window !== 'undefined' &&
+    window.__REDUX_DEVTOOLS_EXTENSION__
+  ) {
     return createStore(app, window.__REDUX_DEVTOOLS_EXTENSION__())
   } else {
     return createStore(app)

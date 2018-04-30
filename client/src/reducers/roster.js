@@ -1,12 +1,14 @@
+import { hashCode } from '../utils'
+
 /**
  * @typedef {Object} Roster
- * @property {Array<Object>} activeUsers
+ * @property {Array<Object>} users
  * @property {String} selfId
  */
 
 /** @type {Roster} */
 const DEFAULT_STATE = {
-  activeUsers: [],
+  users: [],
   selfId: ''
 }
 
@@ -22,22 +24,30 @@ export const roster = (state = DEFAULT_STATE, action) => {
 
     case 'ROSTER_INIT':
       return Object.assign({}, state, {
-        activeUsers: action.userList.map(user =>
-          Object.assign({}, user, { isActive: true })
+        users: action.userList.map(user =>
+          Object.assign({}, user, {
+            hash: hashCode(user.id) % 10000,
+            isActive: true
+          })
         )
       })
 
     case 'ROSTER_ADD_USER':
       return Object.assign({}, state, {
-        activeUsers: [
-          ...state.activeUsers,
-          { id: action.id, username: 'guest', isActive: true }
+        users: [
+          ...state.users,
+          {
+            id: action.id,
+            username: 'guest',
+            hash: hashCode(action.id) % 10000,
+            isActive: true
+          }
         ]
       })
 
     case 'ROSTER_UPDATE_USERNAME':
       return Object.assign({}, state, {
-        activeUsers: state.activeUsers.map(
+        users: state.users.map(
           user =>
             action.id !== user.id
               ? user
@@ -45,9 +55,9 @@ export const roster = (state = DEFAULT_STATE, action) => {
         )
       })
 
-    case 'ROSTER_REMOVE_USER':
+    case 'ROSTER_INACTIVE_USER':
       return Object.assign({}, state, {
-        activeUsers: state.activeUsers.map(
+        users: state.users.map(
           user =>
             action.id !== user.id
               ? user

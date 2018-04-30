@@ -6,9 +6,10 @@
   .public,
   .peer {
     padding: 0 2em 1em 2em;
+    height: 100vh;
 
     & .chat {
-      height: ~'calc(100vh - 9em)';
+      height: ~'calc(100% - 5em)';
       overflow-y: scroll;
     }
   }
@@ -31,12 +32,55 @@
       white-space: pre-wrap;
     }
   }
+
+  .roster {
+    .user {
+      .info {
+        margin-left: 1em;
+      }
+    }
+  }
+}
+
+.user {
+  .username {
+    &::after {
+      content: ' ';
+    }
+  }
+
+  .hash,
+  .info {
+    font-weight: bold;
+    opacity: 0.5;
+  }
 }
 
 .chat {
   .entry {
+    margin: 0.75em 0;
+
     .message {
+      animation: fadeInOut cubic-bezier() 0.125s;
       overflow-wrap: break-word;
+
+      &::before {
+        content: ' ';
+      }
     }
+  }
+}
+
+.fadeInOut {
+  animation: fadeInOut 1.5s infinite;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
   }
 }

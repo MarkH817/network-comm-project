@@ -40,7 +40,7 @@ export const updateUserName = (socketID, username) => ({
  * Remove disconnected user
  * @param {String} socketID
  */
-export const removeUser = socketID => ({
-  type: 'ROSTER_REMOVE_USER',
+export const inactiveUser = socketID => ({
+  type: 'ROSTER_INACTIVE_USER',
   id: socketID
 })

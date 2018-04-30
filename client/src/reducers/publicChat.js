@@ -7,6 +7,7 @@ import {
 
 /**
  * @typedef {Object} PublicChat
+ * @property {Boolean} connected
  * @property {Boolean} enabled
  * @property {Array<Message>} log
  * @property {Array<Debug>} debugLog
@@ -14,6 +15,7 @@ import {
 
 /** @type {PublicChat} */
 const DEFAULT_STATE = {
+  connected: false,
   enabled: false,
   log: [],
   debugLog: []
@@ -50,6 +52,12 @@ export const publicChat = (state = DEFAULT_STATE, action) => {
           createDebugMessage(action.message, 'error')
         ]
       })
+
+    case 'PUBLIC_CHAT_CONNECT':
+      return Object.assign({}, state, { connected: true })
+
+    case 'PUBLIC_CHAT_DISCONNECT':
+      return Object.assign({}, state, { connected: false })
 
     case 'PUBLIC_CHAT_ENABLE':
       return Object.assign({}, state, { enabled: true })

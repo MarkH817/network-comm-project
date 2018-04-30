@@ -1,11 +1,11 @@
 import React from 'react'
 
-export const Loading = ({ error, pastDelay }) => {
+export const Loading = ({ className, error, pastDelay }) => {
   if (error) {
-    return <section>Error!</section>
+    return <section className={className}>Error!</section>
   } else if (pastDelay) {
-    return <section>Loading...</section>
+    return <section className={className}>Loading...</section>
   } else {
-    return null
+    return <section className={className} />
   }
 }
