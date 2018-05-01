@@ -7,6 +7,7 @@ import { Provider } from 'react-redux'
 import '../styles/main.less'
 import { Loading } from './components/loading'
 import { getStore } from './store'
+import { getSocket } from './utils'
 
 const store = getStore()
 
@@ -20,12 +21,21 @@ const PublicChat = Loadable({
   loading: Loading
 })
 
+const PeerChat = Loadable({
+  loader: () => import('./components/peerChat'),
+  loading: Loading
+})
+
+const socket = getSocket()
+
 render(
   <Provider store={store}>
     <section className='app flex one two-1000'>
-      <PublicChat className='public' />
+      <PublicChat socketPromise={socket} className='public' />
 
-      <Roster className='roster' />
+      <Roster socketPromise={socket} className='roster' />
+
+      <PeerChat socketPromise={socket} className='peer' />
     </section>
   </Provider>,
   document.getElementById('root')

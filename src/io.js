@@ -43,9 +43,34 @@ const attachIO = httpserver => {
 
     // Emit disconnected socketID to all users
     socket.on('disconnect', () => {
-      io.emit('roster-remove', socket.id)
-
       activeUsers = activeUsers.filter(({ id }) => id !== socket.id)
+
+      io.emit('roster-remove', socket.id)
+    })
+
+    // Demo for passing signal data to initiate peer connection
+    socket.on('poke', (peerId, message = '') => {
+      socket.broadcast.to(peerId).emit('poke', socket.id, message)
+    })
+
+    // Peer functionality
+
+    // Ask if user is available for P2P chat
+    socket.on('peer-checkAvailability', peerId => {
+      // Send asker's id for response
+      socket.broadcast.to(peerId).emit('peer-availability', socket.id)
+    })
+
+    // Relay user availability to asker
+    socket.on('peer-isAvailable', (peerId, isAvailable) => {
+      socket.broadcast
+        .to(peerId)
+        .emit('peer-isAvailable', socket.id, isAvailable)
+    })
+
+    // Relay webRTC signal
+    socket.on('peer-sendSignal', (peerId, signal) => {
+      socket.broadcast.to(peerId).emit('peer-receiveSignal', signal)
     })
   })
 }

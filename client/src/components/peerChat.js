@@ -1,183 +1,216 @@
-import React, { Fragment, PureComponent } from 'react'
+import React, { PureComponent } from 'react'
+import Loadable from 'react-loadable'
+import { connect } from 'react-redux'
 
-import { Chat } from './chat'
+import {
+  addMessage,
+  addError,
+  connectPeer,
+  disconnectPeer,
+  enableChat,
+  disableChat
+} from '../actions/peerChat'
+import { Loading } from './loading'
+import { getPeer } from '../utils'
 
-export class PeerChat extends PureComponent {
+const Chat = Loadable({
+  loader: () => import('./chat'),
+  loading: Loading
+})
+
+const MessageInput = Loadable({
+  loader: () => import('./messageInput'),
+  loading: Loading
+})
+
+export class PeerChatPresentation extends PureComponent {
   constructor (props) {
     super(props)
 
-    this.state = {
-      chatLog: [],
-      input: '',
-      isConnected: false,
-      isInitiator: false,
-      madeChoice: false,
-      selfId: null
-    }
-
     this.peer = null
+    this.socket = null
+
+    this.setPeer = this.setPeer.bind(this)
+    this.receiveSignal = this.receiveSignal.bind(this)
+    this.emitMessage = this.emitMessage.bind(this)
   }
 
-  async setPeer (isInitiator) {
-    this.setState({
-      isInitiator,
-      madeChoice: true
+  async componentDidMount () {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const { socketPromise } = this.props
+
+    const socket = await socketPromise
+
+    socket.on('peer-availability', peerId => {
+      const { connected } = this.props
+      socket.emit('peer-isAvailable', peerId, !connected)
+
+      if (!connected) {
+        this.setPeer(false, peerId)
+      }
     })
 
-    const { default: Peer } = await import('simple-peer')
+    // This is for users who are initiating the connection
+    socket.on('peer-isAvailable', (peerId, isAvailable) => {
+      if (!isAvailable) {
+        return
+      }
 
-    const peer = new Peer({
-      initiator: isInitiator,
-      trickle: false
+      this.setPeer(true, peerId)
     })
+
+    socket.on('peer-receiveSignal', this.receiveSignal)
+
+    this.socket = socket
+  }
+
+  componentWillUnmount () {
+    this.clearPeer()
+  }
+
+  /**
+   * Create peer instance connection
+   * @param {Boolean} isInitiator
+   * @param {String} peerId
+   */
+  async setPeer (isInitiator, peerId) {
+    if (this.peer !== null) {
+      return
+    }
+
+    const {
+      addError,
+      addMessage,
+      connectPeer,
+      disconnectPeer,
+      enableChat,
+      disableChat
+    } = this.props
+
+    const peer = await getPeer(isInitiator)
 
     peer.on('signal', data => {
-      this.setState({
-        selfId: data
-      })
+      this.sendSignal(peerId, data)
     })
 
     peer.on('connect', () => {
-      console.log('Connected')
-
-      this.setState({
-        isConnected: true
-      })
-    })
-
-    peer.on('error', err => {
-      this.addToChatLog(err.message, '[Error]')
+      connectPeer(peerId)
+      enableChat()
     })
 
     peer.on('close', () => {
-      this.addToChatLog('Your peer has left.', '[Info]')
+      disableChat()
+      disconnectPeer()
+
+      this.clearPeer()
     })
 
+    // receive messages
     peer.on('data', data => {
-      this.addToChatLog(data.toString(), 'peer')
+      const { timestamp, message } = JSON.parse(data.toString())
+      addMessage(peerId, timestamp, message)
     })
+
+    peer.on('error', addError)
 
     this.peer = peer
   }
 
-  signalPeer (e) {
-    e.preventDefault()
-
-    const { input } = this.state
-    const inputText = input.trim()
-
-    if (inputText === '') {
+  /**
+   * Send signal data to peer over socket
+   * @param {String} peerId
+   * @param {Object} signal
+   */
+  sendSignal (peerId, signal) {
+    if (this.socket === null) {
       return
     }
 
-    try {
-      const peerId = JSON.parse(inputText)
-      this.peer.signal(peerId)
-    } catch (err) {
-      console.error(err)
-    }
-
-    this.setState({
-      input: ''
-    })
+    this.socket.emit('peer-sendSignal', peerId, signal)
   }
 
-  messagePeer (e) {
-    e.preventDefault()
-
-    const {
-      state: { input },
-      peer
-    } = this
-    const inputText = input.trim()
-
-    if (inputText === '') {
+  /**
+   * Recieve webRTC signal data
+   * @param {Object} signal
+   */
+  receiveSignal (signal) {
+    if (this.peer === null) {
       return
     }
 
-    peer.send(inputText)
-    this.addToChatLog(inputText, 'you')
-
-    this.setState({
-      input: ''
-    })
+    this.peer.signal(signal)
   }
 
-  addToChatLog (text, username) {
-    this.setState(prevState => ({
-      chatLog: [
-        ...prevState.chatLog,
-        {
-          message: text,
-          timestamp: Date.now().valueOf(),
-          username
-        }
-      ]
-    }))
-  }
-
-  componentWillUnmount () {
+  clearPeer () {
     if (this.peer !== null) {
       this.peer.destroy()
+      this.peer = null
     }
+  }
+
+  /**
+   * Sends the message to the peer
+   * @param {String} message
+   */
+  async emitMessage (message) {
+    const {
+      props: { enabled, addMessage, selfId, enableChat, disableChat },
+      peer
+    } = this
+
+    if (!enabled || peer === null) {
+      return
+    }
+
+    const timestamp = Date.now().valueOf()
+
+    disableChat()
+
+    peer.send(JSON.stringify({ timestamp, message }))
+    addMessage(selfId, timestamp, message)
+
+    enableChat()
   }
 
   render () {
-    const { chatLog, input, isConnected, madeChoice, selfId } = this.state
+    const { className, addError, connected, enabled, log, users } = this.props
 
     return (
-      <section className='peer'>
-        <h3>Peer Chat</h3>
+      <section className={className || 'peer'}>
+        <h3>Peer Chat ({connected ? 'Connected' : 'Not connected'})</h3>
 
-        <section>
-          {!madeChoice && (
-            <Fragment>
-              <button onClick={() => this.setPeer(true)}>
-                Initiate conversation
-              </button>
-              <button onClick={() => this.setPeer(false)}>
-                Receive conversation
-              </button>
-            </Fragment>
-          )}
+        <Chat className='chat' log={log} users={users} />
 
-          {madeChoice &&
-            !isConnected && (
-              <Fragment>
-                <p>Your Contact ID</p>
-                <pre>
-                  {selfId !== null ? JSON.stringify(selfId, null, 2) : '{...}'}
-                </pre>
-              </Fragment>
-            )}
-
-          {madeChoice && isConnected && <h4>Play nice.</h4>}
-        </section>
-
-        {isConnected && <Chat log={chatLog} />}
-
-        <section>
-          {madeChoice && (
-            <Fragment>
-              <form
-                onSubmit={e => {
-                  if (isConnected) {
-                    this.messagePeer(e)
-                  } else {
-                    this.signalPeer(e)
-                  }
-                }}
-              >
-                <input
-                  type='text'
-                  value={input}
-                  onChange={e => this.setState({ input: e.target.value })}
-                />
-              </form>
-            </Fragment>
-          )}
-        </section>
+        <MessageInput
+          enabled={enabled}
+          reportError={addError}
+          submit={this.emitMessage}
+        />
       </section>
     )
   }
 }
+
+const mapStateToProps = ({
+  roster: { users, selfId },
+  peerChat: { connected, enabled, log, peerId }
+}) => ({ connected, enabled, log, users, selfId, peerId })
+
+const mapDispatchToProps = dispatch => ({
+  addError: err => dispatch(addError(err)),
+  addMessage: (id, timestamp, message) =>
+    dispatch(addMessage(id, timestamp, message)),
+  connectPeer: peerId => dispatch(connectPeer(peerId)),
+  disconnectPeer: () => dispatch(disconnectPeer()),
+  enableChat: () => dispatch(enableChat()),
+  disableChat: () => dispatch(disableChat())
+})
+
+export const PeerChat = connect(mapStateToProps, mapDispatchToProps)(
+  PeerChatPresentation
+)
+
+export default PeerChat

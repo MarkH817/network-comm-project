@@ -10,15 +10,7 @@ import {
   disableChat,
   enableChat
 } from '../actions/publicChat'
-import {
-  addUser,
-  idSelf,
-  initializeRoster,
-  inactiveUser,
-  updateUserName
-} from '../actions/roster'
 import { Loading } from './loading'
-import { getSocket, randomEntry } from '../utils'
 
 const Chat = Loadable({
   loader: () => import('./chat'),
@@ -39,7 +31,7 @@ export class PublicChatPresentation extends PureComponent {
     this.socket = null
   }
 
-  componentDidMount () {
+  async componentDidMount () {
     if (typeof window === 'undefined') {
       return
     }
@@ -47,70 +39,33 @@ export class PublicChatPresentation extends PureComponent {
     const {
       addError,
       addMessage,
-      addUser,
       connectChat,
       disconnectChat,
       enableChat,
       disableChat,
-      initRoster,
-      inactiveUser,
-      setId,
-      updateUserName
+      socketPromise
     } = this.props
 
     // Connect socket events to Redux store
-    getSocket()
-      .then(socket => {
-        socket.on('connect', () => {
-          setId(socket.id)
-          connectChat()
-          enableChat()
+    const socket = await socketPromise
 
-          // Demo code - start
-          socket.emit(
-            'username',
-            randomEntry([
-              'Mark',
-              'Christo',
-              'Sam',
-              'Jill',
-              'Justin',
-              'Cristy',
-              'Derek',
-              'Kat',
-              'Matt',
-              'Dorian',
-              'Reinhardt',
-              'Nathan'
-            ])
-          )
-          // Demo code - end
-        })
+    socket.on('connect', () => {
+      connectChat()
+      enableChat()
+    })
 
-        socket.on('disconnect', () => {
-          disableChat()
-          disconnectChat()
-        })
+    socket.on('disconnect', () => {
+      disableChat()
+      disconnectChat()
+    })
 
-        socket.on('roster-current', initRoster)
+    socket.on('message', ({ id, timestamp, message }) => {
+      addMessage(id, timestamp, message)
+    })
 
-        socket.on('roster-add', addUser)
+    socket.on('error', addError)
 
-        socket.on('roster-remove', inactiveUser)
-
-        socket.on('username', ({ id, username }) => {
-          updateUserName(id, username)
-        })
-
-        socket.on('message', ({ id, timestamp, message }) => {
-          addMessage(id, timestamp, message)
-        })
-
-        socket.on('error', addError)
-
-        this.socket = socket
-      })
-      .catch(addError)
+    this.socket = socket
   }
 
   /**
@@ -123,7 +78,7 @@ export class PublicChatPresentation extends PureComponent {
       socket
     } = this
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const timestamp = Date.now().valueOf()
 
       disableChat()
@@ -168,26 +123,16 @@ export class PublicChatPresentation extends PureComponent {
 const mapStateToProps = ({
   roster: { users },
   publicChat: { connected, enabled, log }
-}) => ({
-  connected,
-  enabled,
-  log,
-  users
-})
+}) => ({ connected, enabled, log, users })
 
 const mapDispatchToProps = dispatch => ({
   addError: err => dispatch(addError(err)),
   addMessage: (id, timestamp, message) =>
     dispatch(addMessage(id, timestamp, message)),
-  addUser: id => dispatch(addUser(id)),
   connectChat: () => dispatch(connectChat()),
   disconnectChat: () => dispatch(disconnectChat()),
   disableChat: () => dispatch(disableChat()),
-  enableChat: () => dispatch(enableChat()),
-  initRoster: users => dispatch(initializeRoster(users)),
-  inactiveUser: id => dispatch(inactiveUser(id)),
-  setId: id => dispatch(idSelf(id)),
-  updateUserName: (id, username) => dispatch(updateUserName(id, username))
+  enableChat: () => dispatch(enableChat())
 })
 
 export const PublicChat = connect(mapStateToProps, mapDispatchToProps)(
