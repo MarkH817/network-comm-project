@@ -1,5 +1,12 @@
 const socketIO = require('socket.io')
 
+const { queueTask } = require('./utils')
+
+/*
+ * queueTask is used to ensure that changes to the
+ * activeUsers variable are performed in order
+ */
+
 const attachIO = httpserver => {
   const io = socketIO(httpserver)
 
@@ -8,24 +15,28 @@ const attachIO = httpserver => {
   io.on('connection', socket => {
     console.log(socket.id)
 
-    // Add new user to activeUsers list
-    activeUsers = [...activeUsers, { id: socket.id, username: 'guest' }]
+    queueTask().then(() => {
+      // Add new user to activeUsers list
+      activeUsers = [...activeUsers, { id: socket.id, username: 'guest' }]
 
-    // Send whole list of connected users to the new user only
-    socket.emit('roster-current', activeUsers)
+      // Send whole list of connected users to the new user only
+      socket.emit('roster-current', activeUsers)
+    })
 
     // Emit socketID to other users to update roster
     socket.broadcast.emit('roster-add', socket.id)
 
     // User broadcasts their username to others
     socket.on('username', (username = 'guest') => {
-      activeUsers = activeUsers.map(
-        user => (user.id !== socket.id ? user : { id: socket.id, username })
-      )
+      queueTask().then(() => {
+        activeUsers = activeUsers.map(
+          user => (user.id !== socket.id ? user : { id: socket.id, username })
+        )
 
-      io.emit('username', {
-        id: socket.id,
-        username
+        io.emit('username', {
+          id: socket.id,
+          username
+        })
       })
     })
 
@@ -43,14 +54,11 @@ const attachIO = httpserver => {
 
     // Emit disconnected socketID to all users
     socket.on('disconnect', () => {
-      activeUsers = activeUsers.filter(({ id }) => id !== socket.id)
+      queueTask().then(() => {
+        activeUsers = activeUsers.filter(({ id }) => id !== socket.id)
 
-      io.emit('roster-remove', socket.id)
-    })
-
-    // Demo for passing signal data to initiate peer connection
-    socket.on('poke', (peerId, message = '') => {
-      socket.broadcast.to(peerId).emit('poke', socket.id, message)
+        io.emit('roster-remove', socket.id)
+      })
     })
 
     // Peer functionality
