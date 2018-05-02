@@ -52,7 +52,7 @@ module.exports = {
       filename: '[name].css'
     }),
     new HtmlWebpackPlugin({
-      title: 'Hello',
+      title: 'Web Chat',
       template: 'pages/index.html'
     })
   ]

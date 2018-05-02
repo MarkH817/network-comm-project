@@ -39,17 +39,20 @@ export class MessageInput extends PureComponent {
   render () {
     const {
       state: { text },
-      props: { className, enabled }
+      props: { className, enabled, placeholderText }
     } = this
 
     return (
       <form className={className} onSubmit={this.handleSubmit}>
-        <input
-          type='text'
-          value={text}
-          onChange={this.handleInput}
-          disabled={!enabled}
-        />
+        <label>
+          <input
+            type='text'
+            value={text}
+            onChange={this.handleInput}
+            disabled={!enabled}
+            placeholder={placeholderText}
+          />
+        </label>
       </form>
     )
   }
@@ -57,12 +60,14 @@ export class MessageInput extends PureComponent {
 
 MessageInput.propTypes = {
   enabled: PropTypes.bool.isRequired,
+  placeholderText: PropTypes.string,
   reportError: PropTypes.func,
   submit: PropTypes.func.isRequired
 }
 
 MessageInput.defaultProps = {
-  reportError: err => console.error(err)
+  reportError: err => console.error(err),
+  placeholderText: 'Type here'
 }
 
 export default MessageInput
