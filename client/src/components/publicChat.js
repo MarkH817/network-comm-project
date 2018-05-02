@@ -114,6 +114,11 @@ export class PublicChatPresentation extends PureComponent {
           enabled={enabled}
           reportError={addError}
           submit={this.emitMessage}
+          placeholderText={
+            connected
+              ? 'Submit message to public chat.'
+              : 'Connecting to server.'
+          }
         />
       </section>
     )

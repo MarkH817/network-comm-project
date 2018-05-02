@@ -31,6 +31,8 @@ export class PeerChatPresentation extends PureComponent {
     this.socket = null
 
     this.setPeer = this.setPeer.bind(this)
+    this.clearPeer = this.clearPeer.bind(this)
+    this.sendSignal = this.sendSignal.bind(this)
     this.receiveSignal = this.receiveSignal.bind(this)
     this.emitMessage = this.emitMessage.bind(this)
   }
@@ -81,14 +83,7 @@ export class PeerChatPresentation extends PureComponent {
       return
     }
 
-    const {
-      addError,
-      addMessage,
-      connectPeer,
-      disconnectPeer,
-      enableChat,
-      disableChat
-    } = this.props
+    const { addError, addMessage, connectPeer, enableChat } = this.props
 
     const peer = await getPeer(isInitiator)
 
@@ -101,12 +96,7 @@ export class PeerChatPresentation extends PureComponent {
       enableChat()
     })
 
-    peer.on('close', () => {
-      disableChat()
-      disconnectPeer()
-
-      this.clearPeer()
-    })
+    peer.on('close', this.clearPeer)
 
     // receive messages
     peer.on('data', data => {
@@ -145,7 +135,12 @@ export class PeerChatPresentation extends PureComponent {
   }
 
   clearPeer () {
+    const { disableChat, disconnectPeer } = this.props
+
     if (this.peer !== null) {
+      disableChat()
+      disconnectPeer()
+
       this.peer.destroy()
       this.peer = null
     }
@@ -188,6 +183,11 @@ export class PeerChatPresentation extends PureComponent {
           enabled={enabled}
           reportError={addError}
           submit={this.emitMessage}
+          placeholderText={
+            connected
+              ? 'Send message to peer.'
+              : 'Not connected to a peer. Go "poke" someone.'
+          }
         />
       </section>
     )

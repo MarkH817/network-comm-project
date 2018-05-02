@@ -1,4 +1,6 @@
 import React, { PureComponent } from 'react'
+import Loadable from 'react-loadable'
+import Helmet from 'react-helmet'
 import { connect } from 'react-redux'
 
 import {
@@ -8,7 +10,12 @@ import {
   inactiveUser,
   updateUserName
 } from '../actions/roster'
-import { randomEntry } from '../utils'
+import { Loading } from './loading'
+
+const MessageInput = Loadable({
+  loader: () => import('./messageInput'),
+  loading: Loading
+})
 
 export class User extends PureComponent {
   constructor (props) {
@@ -30,24 +37,37 @@ export class User extends PureComponent {
 
     return (
       <section className='user'>
-        <span className='username'>{username.padEnd(20, ' ')}</span>
+        {isSelf && (
+          <Helmet
+            title={`Web Chat (${username}#${hash.toString().padStart(4, '0')})`}
+          />
+        )}
 
-        <span className='hash'>#{hash.toString().padStart(4, '0')}</span>
+        <button className='pseudo' disabled>
+          <span className='username'>{username.padEnd(20, ' ')}</span>
+
+          <span className='hash'>#{hash.toString().padStart(4, '0')}</span>
+        </button>
 
         <span className='info'>
-          {isSelf && '(You)'}
+          {(isSelf || !isActive) && (
+            <button className='pseudo' disabled>
+              {isSelf && '(You)'}
 
-          {!isActive && '[Inactive] '}
-
-          {!isSelf && (
-            <button
-              onClick={this.poked}
-              className='pseudo'
-              disabled={!isActive || !canPoke}
-            >
-              Poke
+              {!isActive && '[Inactive] '}
             </button>
           )}
+
+          {!isSelf &&
+            isActive && (
+              <button
+                onClick={this.poked}
+                className='pseudo'
+                disabled={!canPoke}
+              >
+                Poke
+              </button>
+            )}
         </span>
       </section>
     )
@@ -59,6 +79,7 @@ export class RosterPresentation extends PureComponent {
     super(props)
 
     this.pokeUser = this.pokeUser.bind(this)
+    this.setUsername = this.setUsername.bind(this)
   }
 
   async componentDidMount () {
@@ -79,24 +100,6 @@ export class RosterPresentation extends PureComponent {
 
     socket.on('connect', () => {
       setId(socket.id)
-
-      socket.emit(
-        'username',
-        randomEntry([
-          'Mark',
-          'Christo',
-          'Sam',
-          'Jill',
-          'Justin',
-          'Cristy',
-          'Derek',
-          'Kat',
-          'Matt',
-          'Dorian',
-          'Reinhardt',
-          'Nathan'
-        ])
-      )
     })
 
     socket.on('roster-current', initRoster)
@@ -105,6 +108,20 @@ export class RosterPresentation extends PureComponent {
     socket.on('username', ({ id, username }) => updateUserName(id, username))
   }
 
+  /**
+   * Set self username
+   * @param {String} username
+   */
+  async setUsername (username) {
+    const socket = await this.props.socketPromise
+
+    socket.emit('username', username)
+  }
+
+  /**
+   * Connect with a user if they are available for a P2P connection
+   * @param {String} socketId
+   */
   async pokeUser (socketId) {
     const { socketPromise } = this.props
 
@@ -114,35 +131,59 @@ export class RosterPresentation extends PureComponent {
   }
 
   render () {
-    const { className, selfId, users, peerConnected } = this.props
+    const {
+      className,
+      selfId,
+      users,
+      publicConnected,
+      peerConnected
+    } = this.props
+
+    if (users.length === 0) {
+      return <section className={className} />
+    }
 
     return (
       <section className={className}>
         <h3>Roster</h3>
 
-        {users.map(user => (
-          <User
-            key={user.id}
-            id={user.id}
-            username={user.username}
-            hash={user.hash}
-            isActive={user.isActive}
-            isSelf={user.id === selfId}
-            poke={this.pokeUser}
-            canPoke={!peerConnected}
-          />
-        ))}
+        <MessageInput
+          enabled={publicConnected}
+          submit={this.setUsername}
+          placeholderText={
+            publicConnected
+              ? 'Set your username.'
+              : 'Hold on. Connecting to server.'
+          }
+        />
+
+        <section className='list'>
+          {users.map(user => (
+            <User
+              key={user.id}
+              id={user.id}
+              username={user.username}
+              hash={user.hash}
+              isActive={user.isActive}
+              isSelf={user.id === selfId}
+              poke={this.pokeUser}
+              canPoke={!peerConnected}
+            />
+          ))}
+        </section>
       </section>
     )
   }
 }
 
 const mapStateToProps = ({
-  roster: { selfId, users },
-  peerChat: { connected: peerConnected }
+  peerChat: { connected: peerConnected },
+  publicChat: { connected: publicConnected },
+  roster: { selfId, users }
 }) => ({
   selfId,
   users,
+  publicConnected,
   peerConnected
 })
 

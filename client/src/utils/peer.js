@@ -6,7 +6,7 @@
  */
 export const getPeer = isInitiator => {
   return new Promise((resolve, reject) => {
-    import('simple-peer')
+    import(/* webpackPrefetch: true */ 'simple-peer')
       .then(({ default: Peer }) => {
         const peer = new Peer({
           initiator: isInitiator,

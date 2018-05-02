@@ -4,9 +4,19 @@
   min-height: 100vh;
 
   .public,
-  .peer {
+  .peer,
+  .roster {
     padding: 0 2em 1em 2em;
-    height: 100vh;
+
+    input {
+      background-color: inherit;
+      color: inherit;
+    }
+  }
+
+  .public,
+  .peer {
+    height: 65vh;
 
     & .chat {
       height: ~'calc(100% - 5em)';
@@ -15,29 +25,41 @@
   }
 
   .public {
-    background-color: darkblue;
-    color: pink;
+    background-color: rgb(134, 240, 217);
+    color: rgb(50, 2, 112);
 
     input {
-      background-color: lighten(darkblue, 10%);
+      border-color: indigo;
     }
   }
 
   .peer {
-    background-color: pink;
-    color: darkblue;
+    background-color: rgb(40, 0, 114);
+    color: rgb(204, 204, 250);
 
-    pre {
-      font-size: 0.75em;
-      white-space: pre-wrap;
+    input {
+      border-color: lightcyan;
     }
   }
 
   .roster {
-    .user {
-      .info {
-        margin-left: 1em;
-      }
+    background-color: #000000;
+    color: #d9d9d9;
+    min-height: 35vh;
+    max-height: 65vh;
+
+    @media (max-width: 1000px) {
+      max-height: 35vh;
+    }
+
+    button {
+      background-color: inherit;
+      color: inherit;
+    }
+
+    .list {
+      height: ~'calc(100% - 6em)';
+      overflow-y: scroll;
     }
   }
 }

@@ -31,7 +31,7 @@ const socket = getSocket()
 render(
   <Provider store={store}>
     <section className='app flex one two-1000'>
-      <PublicChat socketPromise={socket} className='public' />
+      <PublicChat socketPromise={socket} className='public full' />
 
       <Roster socketPromise={socket} className='roster' />
 
