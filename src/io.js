@@ -17,7 +17,7 @@ const attachIO = httpserver => {
 
     queueTask().then(() => {
       // Add new user to activeUsers list
-      activeUsers = [...activeUsers, { id: socket.id, username: 'guest' }]
+      activeUsers.push({ id: socket.id, username: 'guest' })
 
       // Send whole list of connected users to the new user only
       socket.emit('roster-current', activeUsers)
@@ -28,15 +28,18 @@ const attachIO = httpserver => {
 
     // User broadcasts their username to others
     socket.on('username', (username = 'guest') => {
+      // Updates username in activeUsers list
       queueTask().then(() => {
-        activeUsers = activeUsers.map(
-          user => (user.id !== socket.id ? user : { id: socket.id, username })
-        )
-
-        io.emit('username', {
-          id: socket.id,
-          username
+        activeUsers.forEach(user => {
+          if (user.id === socket.id) {
+            user.username = username
+          }
         })
+      })
+
+      io.emit('username', {
+        id: socket.id,
+        username
       })
     })
 
@@ -56,9 +59,9 @@ const attachIO = httpserver => {
     socket.on('disconnect', () => {
       queueTask().then(() => {
         activeUsers = activeUsers.filter(({ id }) => id !== socket.id)
-
-        io.emit('roster-remove', socket.id)
       })
+
+      io.emit('roster-remove', socket.id)
     })
 
     // Peer functionality

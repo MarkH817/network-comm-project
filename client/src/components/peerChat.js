@@ -11,7 +11,7 @@ import {
   disableChat
 } from '../actions/peerChat'
 import { Loading } from './loading'
-import { getPeer } from '../utils'
+import { getPeer, getUsername } from '../utils'
 
 const Chat = Loadable({
   loader: () => import('./chat'),
@@ -171,11 +171,21 @@ export class PeerChatPresentation extends PureComponent {
   }
 
   render () {
-    const { className, addError, connected, enabled, log, users } = this.props
+    const {
+      className,
+      addError,
+      connected,
+      enabled,
+      log,
+      peerId,
+      users
+    } = this.props
 
     return (
       <section className={className || 'peer'}>
-        <h3>Peer Chat ({connected ? 'Connected' : 'Not connected'})</h3>
+        <h3>
+          Peer Chat ({connected ? getUsername(users, peerId) : 'Not connected'})
+        </h3>
 
         <Chat className='chat' log={log} users={users} />
 

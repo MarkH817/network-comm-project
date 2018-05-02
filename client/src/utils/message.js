@@ -43,3 +43,16 @@ export const createDebugMessage = (message, type) => ({
   message,
   type
 })
+
+/**
+ * Get username by id
+ * @param {Array<Object>} userlist
+ * @param {String} id
+ * @returns {String}
+ */
+export const getUsername = (userlist, id) => {
+  const { username = 'guest', hash = 0 } =
+    userlist.find(user => user.id === id) || {}
+
+  return `${username}#${hash.toString().padStart(4, '0')}`
+}

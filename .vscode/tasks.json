@@ -15,7 +15,11 @@
     },
     {
       "label": "Run in development",
-      "dependsOn": ["dev:Server", "dev:Client"]
+      "dependsOn": [
+        "dev:Server",
+        "dev:Client"
+      ],
+      "problemMatcher": []
     },
     {
       "label": "dev:Server",

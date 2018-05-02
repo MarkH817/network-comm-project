@@ -21,6 +21,10 @@
     & .chat {
       height: ~'calc(100% - 5em)';
       overflow-y: scroll;
+
+      .message {
+        max-width: 31.25em;
+      }
     }
   }
 
@@ -83,7 +87,7 @@
     margin: 0.75em 0;
 
     .message {
-      animation: fadeInOut cubic-bezier() 0.125s;
+      animation: fadeIn cubic-bezier() 0.125s;
       overflow-wrap: break-word;
 
       &::before {
@@ -98,6 +102,17 @@
 }
 
 @keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
   0% {
     opacity: 0;
   }

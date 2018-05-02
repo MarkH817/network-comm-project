@@ -68,6 +68,13 @@ export class PublicChatPresentation extends PureComponent {
     this.socket = socket
   }
 
+  componentWillUnmount () {
+    if (this.socket !== null) {
+      this.socket.close()
+      this.socket = null
+    }
+  }
+
   /**
    * Sends the message to the Socket.io server
    * @param {String} message
